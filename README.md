@@ -31,9 +31,7 @@ optional arguments:
 #### Tips
 - I'd recommend to create a bashfile in cron.daily to purge files from the trashbin automatically. To purge files
 older than 10 days put e.g. this file to /etc/cron.daily/:
-```
 `/path/to/trashcaron.py -pt 10`
-
 - I use these bash aliases for trashcaron.py: 
 ```
 alias rm="/path/to/trashcaron.py -v -d"
