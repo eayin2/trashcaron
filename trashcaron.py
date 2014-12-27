@@ -94,7 +94,7 @@ class Trashcaron:
         self.purgeTime = purgeTime
         self.listTrashSizes = listTrashSizes
         if self.purgeTime:
-            self.purgeTime *= 1  # 86400
+            self.purgeTime *= 86400
 
     def duSubprocess(self, trashbinPath):
         try:
