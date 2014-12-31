@@ -155,26 +155,27 @@ class Trashcaron:
 
     def deleteOldFiles(self, subvolAbsTrashBinPath):
         logDebug("subvolAbsTrashPath: %s" % subvolAbsTrashBinPath)
-        for baseDir, subDirs, file in os.walk(subvolAbsTrashBinPath):
-            for subDir in subDirs:
-                currentTstamp = int(time.time())
-                subDirAbsPath = os.path.join(baseDir, subDir)
-                dirCtime = int(os.path.getctime(subDirAbsPath))
-                cTimeSpan = currentTstamp - dirCtime
-                if cTimeSpan > self.purgeTime:
-                    try:
-                        shutil.rmtree(subDirAbsPath)
-                        logWarning("Purged %s (age %s days)" % (subDirAbsPath, format(cTimeSpan/86400, '.2f')))
-                    except IOError as e:
-                        logError("Purging failed for %s" % subDirAbsPath)
-                        raise e
-                    tstamp = int(time.time())
-                    with open(os.path.join(dirname(dirname(subvolAbsTrashBinPath)), relTrashLogPath, "%s.log" % tstamp),
-                              "a") as myfile:
-                        myfile.write("Purged %s (age %s days)\n" % (subDirAbsPath, format(cTimeSpan/86400, '.2f')))
-                else:
-                    logDebug("%s not deleted, because cTimeSpan %i < purgeTime %i" % (subDirAbsPath,
-                                                                                      cTimeSpan, self.purgeTime))
+        logError(os.walk(subvolAbsTrashBinPath).__next__()[1])
+        for immediateSubdir in os.walk(subvolAbsTrashBinPath).__next__()[1]:
+            currentTstamp = int(time.time())
+            subDirAbsPath = os.path.join(subvolAbsTrashBinPath, immediateSubdir)
+            dirCtime = int(os.path.getctime(subDirAbsPath))
+            cTimeSpan = currentTstamp - dirCtime
+            if cTimeSpan > self.purgeTime:
+                try:
+                    shutil.rmtree(subDirAbsPath)
+                    logWarning("Purged %s (age %s days)" % (subDirAbsPath, format(cTimeSpan/86400, '.2f')))
+                except IOError as e:
+                    logError("Purging failed for %s" % subDirAbsPath)
+                    raise e
+                tstamp = int(time.time())
+                with open(os.path.join(dirname(dirname(subvolAbsTrashBinPath)), relTrashLogPath, "%s.log" % tstamp),
+                          "a") as myfile:
+                    myfile.write("Purged %s (age %s days)\n" % (subDirAbsPath, format(cTimeSpan/86400, '.2f')))
+            else:
+                logDebug("%s not deleted, because cTimeSpan %i < purgeTime %i" % (subDirAbsPath,
+                                                                                  cTimeSpan, self.purgeTime))
+
     def findMpoints(self):
         btrfsRootSubvolList = list()
         mpointsWithoutBtrfsTrashbinList = list()
@@ -270,7 +271,11 @@ class Trashcaron:
             if btrfsRootSubvolList:
                 self.btrfsParseMpoints(btrfsRootSubvolList)  # btrfsParseMpoints will initiate deleteOldFiles for btrfs.
             for trashbinPath in mpointsWithoutBtrfsTrashbinList:  # For no btrfs we initiate deleteOldfiles here.
-                self.deleteOldFiles(trashbinPath)
+                if os.path.isdir(trashbinPath):
+                    logInfo("%s: Found trashbin." % trashbinPath)
+                    self.deleteOldFiles(trashbinPath)
+                else:
+                    logInfo("%s: Found no trashbin." % trashbinPath)
         if self.fileNameList:
             self.deleteFile(self.fileNameList)
         if self.listTrashSizes:
