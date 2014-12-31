@@ -155,7 +155,6 @@ class Trashcaron:
 
     def deleteOldFiles(self, subvolAbsTrashBinPath):
         logDebug("subvolAbsTrashPath: %s" % subvolAbsTrashBinPath)
-        logError(os.walk(subvolAbsTrashBinPath).__next__()[1])
         for immediateSubdir in os.walk(subvolAbsTrashBinPath).__next__()[1]:
             currentTstamp = int(time.time())
             subDirAbsPath = os.path.join(subvolAbsTrashBinPath, immediateSubdir)
