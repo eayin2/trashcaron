@@ -1,7 +1,7 @@
 trashcaron
 ==========
 <br>
-Trashcaron (acronym for 'trash care python') allows you to delete files/folders to a trashbin. Moreover you can
+Trashcaron (acronym for 'trash care python') allows you to delete files/directories to a trashbin. Moreover you can
 purge trashed files after a specified time for all trashbins. You can also list the size of each existing trashbin
 on the system.
 
